@@ -1,1 +1,0 @@
-auth_secret_key = "425j2jkjdfk3*38bjb3#*@!Bibidj2j90$Tbuiwirbjkjbfk#@jadkjsf"
