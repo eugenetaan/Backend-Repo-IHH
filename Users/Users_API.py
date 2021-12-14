@@ -7,11 +7,11 @@ sys.path.append("../")
 
 users_api = Blueprint("users", __name__)
 
-@users_api.route("/")
-def hello():
-    return "Hello here are the users"
+# @users_api.route("/")
+# def hello():
+#     return "Hello here are the users"
 
-@users_api.route("/users", methods=["GET"])
+@users_api.route("", methods=["GET"])
 
 def get_users():
         try:

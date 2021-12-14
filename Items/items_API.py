@@ -7,11 +7,11 @@ sys.path.append("../")
 
 items_api = Blueprint("items", __name__)
 
-@items_api.route("/")
-def hello():
-    return "Here you can find all the items that other people are sharing!"
+# @items_api.route("/")
+# def hello():
+#     return "Here you can find all the items that other people are sharing!"
 
-@items_api.route('/items', methods=["GET", "POST"])
+@items_api.route('', methods=["GET", "POST"])
 
 def all_items():
 
@@ -50,6 +50,10 @@ def all_items():
             "photo" : photo
         }
 
+        #check if item_ID already exist in DB
+        if list(db.items.find({"itemID": itemID})):
+            return jsonify({"message": "Duplicate itemID", "status": "failure"})
+
         receipt = db.items.insert_one(body)
         body["_id"] = str(receipt.inserted_id)
 
@@ -57,7 +61,7 @@ def all_items():
 
 
 
-@items_api.route('/items/item', methods=["GET", "PUT", "DELETE"])
+@items_api.route('/item', methods=["GET", "PUT", "DELETE"])
 
 def item():
 

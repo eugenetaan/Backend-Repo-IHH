@@ -8,11 +8,11 @@ sys.path.append("../")
 
 profiles_api = Blueprint("profiles", __name__)
 
-@profiles_api.route("/")
-def hello():
-    return "Hello here are the users"
+# @profiles_api.route("/")
+# def hello():
+#     return "Hello here are the users"
 
-@profiles_api.route("/profiles", methods=["GET"])
+@profiles_api.route("", methods=["GET"])
 
 def get_profiles():
         try:

@@ -29,8 +29,14 @@ def register():
             displayName = formData["displayName"]
             room = formData["room"]
             telegramHandle = formData["telegramHandle"]
+            userPhoto = formData.get("userPhoto") if formData.get("userPhoto") else "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon"
     except:
         return jsonify({"message": "bad request", "status": "failure"})
+
+
+    # DB uses userID as unique index so check if already inside
+    if list(db.Users.find({"userID": userID})) or list(db.Profiles.find({"userID": userID})):
+        return jsonify({"message": "User Already Registered", "status": "failure"}), 400
     
     db.Users.insert_one({"userID": userID,
                         "passwordHash": passwordHash,
@@ -41,7 +47,7 @@ def register():
                             "room": room,
                             "telegramHandle": telegramHandle,
                             # default photo is below
-                            "profilePictureURI": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon"
+                            "profilePictureURI": userPhoto
                             })
 
     return jsonify({"message": "User successfully registered", "status": "success"})
@@ -54,7 +60,7 @@ def login():
     userID = credentials['userID']
     passwordHash = credentials['passwordHash']
 
-    if not db.Users.find({'userID': userID, 'passwordHash': passwordHash}).count():
+    if not list(db.Users.find({'userID': userID, 'passwordHash': passwordHash})):
         return jsonify({'message': 'Invalid credentials'}), 403
 
     db.Session.update({'userID': userID, 'passwordHash': passwordHash}, {'$set': {
@@ -80,7 +86,7 @@ def logout():
 
 
 
-#Form Data Example
+# Form Data Example
 # {
 #     "userID": "A0XXXXXXE",
 #     "passwordHash": "RandomStr",
