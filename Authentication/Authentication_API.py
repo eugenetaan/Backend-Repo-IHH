@@ -8,16 +8,16 @@ from functools import wraps
 from flask import Blueprint
 from flask import current_app
 
-sys.path.append("../db")
+sys.path.append("../")
 
 auth_api = Blueprint("auth", __name__)
 
-auth_api.route("/")
+@auth_api.route("/")
 def hello():
     return "Hello World"
 
 
-auth_api.route("/register", methods=["POST"])
+@auth_api.route("/register", methods=["POST"])
 
 def register():
     formData = request.get_json()
@@ -27,7 +27,7 @@ def register():
             passwordHash = formData["passwordHash"]
             email = formData["email"]
             displayName = formData["displayName"]
-            block = formData["block"]
+            room = formData["room"]
             telegramHandle = formData["telegramHandle"]
     except:
         return jsonify({"message": "bad request", "status": "failure"})
@@ -38,14 +38,16 @@ def register():
                         })
     db.Profiles.insert_one({"userID": userID,
                             "displayName": displayName,
-                            "block": block,
+                            "room": room,
                             "telegramHandle": telegramHandle,
+                            # default photo is below
+                            "profilePictureURI": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon"
                             })
 
     return jsonify({"message": "User successfully registered", "status": "success"})
 
 
-auth_api.route('/login', methods=['POST'])
+@auth_api.route('/login', methods=['POST'])
 
 def login():
     credentials = request.get_json()
@@ -64,7 +66,7 @@ def login():
     return jsonify({'token': token}), 200
 
 
-auth_api.route('/logout', methods=['GET'])
+@auth_api.route('/logout', methods=['GET'])
 def logout():
     userID = request.args.get('userID')
     try:
@@ -74,3 +76,22 @@ def logout():
     return jsonify({'message': 'You have been successfully logged out'}), 200
 
 
+
+
+
+
+#Form Data Example
+# {
+#     "userID": "A0XXXXXXE",
+#     "passwordHash": "RandomStr",
+#     "email": "eXXXXX@u.nus.edu",
+#     "displayName": "UserName",
+#     "room": "7-101",
+#     "telegramHandle": "telehandle",
+# }
+
+#login data
+# {
+#     "userID": "A0XXXXXXE",
+#     "passwordHash": "RandomStr",
+# }
