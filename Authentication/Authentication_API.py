@@ -54,7 +54,7 @@ def login():
     userID = credentials['userID']
     passwordHash = credentials['passwordHash']
 
-    if not db.Users.find({'userID': userID, 'passwordHash': passwordHash}).limit(1):
+    if not db.Users.find({'userID': userID, 'passwordHash': passwordHash}).count():
         return jsonify({'message': 'Invalid credentials'}), 403
 
     db.Session.update({'userID': userID, 'passwordHash': passwordHash}, {'$set': {
