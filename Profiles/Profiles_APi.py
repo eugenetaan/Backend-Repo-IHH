@@ -4,15 +4,15 @@ from flask import Blueprint
 import sys
 
 
-sys.path.append("../db")
+sys.path.append("../")
 
 profiles_api = Blueprint("profiles", __name__)
 
-profiles_api.route("/")
+@profiles_api.route("/")
 def hello():
     return "Hello here are the users"
 
-profiles_api.route("/users", methods=["GET"])
+@profiles_api.route("/profiles", methods=["GET"])
 
 def get_profiles():
         try:
@@ -22,7 +22,7 @@ def get_profiles():
 
         if not userID:
             try:
-                data = list(db.profiles.find({"_id": 0}).sort("block", 1))
+                data = list(db.Profiles.find({},{"_id": 0}).sort("block", 1))
                 response = {"status": "success", "data": data}
             except Exception as e:
                 print(e)
@@ -30,12 +30,12 @@ def get_profiles():
             
         else:
             try:
-                data = list(db.profiles.find_one({"userID": userID}))
+                data = db.Profiles.find_one({"userID": userID}, {"_id" : 0})
             except Exception as e:
                 return {"err": str(e), "status": "failed"}, 400
 
-            if len(data) == 0:
-                raise Exception("Profile not found")
+            if data == None:
+                return {"err": "No such profile", "status": "failed"}, 400
 
             response = {"status": "success", "data": data}
         
