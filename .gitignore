@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 db.py
-secret_kets.py
+secret_keys.py
