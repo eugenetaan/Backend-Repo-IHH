@@ -3,22 +3,22 @@ from flask import Flask, render_template, flash, redirect, url_for, request, jso
 from flask import Blueprint
 import sys
 
-sys.path.append("../db")
+sys.path.append("../")
 
 items_api = Blueprint("items", __name__)
 
-items_api.route("/")
+@items_api.route("/")
 def hello():
     return "Here you can find all the items that other people are sharing!"
 
-items_api.route('/items', methods=["GET", "POST"])
+@items_api.route('/items', methods=["GET", "POST"])
 
 def all_items():
 
     if request.method == "GET":
 
         try:
-            data = list(db.items.find({"_id": 0}).sort("itemID", 1))
+            data = list(db.items.find({},{"_id": 0}).sort("itemID", 1))
             response = {"status": "success", "data": data}
         except Exception as e:
             print(e)
@@ -36,26 +36,28 @@ def all_items():
         itemName = str(data.get('itemName'))
         description = str(data.get("description"))
         remarks = str(data.get("remarks"))
-        userName = str(data.get('Lender'))
+        userName = str(data.get('userName'))
         userID = str(data.get("userID"))
+        photo = str(data.get("photo"))
 
         body = {
             "itemID": itemID,
             "itemName": itemName,
-            "user": userName,
+            "userName": userName,
             "userID" : userID,
             "description" : description,
-            "remarks" : remarks
+            "remarks" : remarks,
+            "photo" : photo
         }
 
-        receipt = db.User.insert_one(body)
+        receipt = db.items.insert_one(body)
         body["_id"] = str(receipt.inserted_id)
 
         return make_response({"message": body, "status": "success"}, 200)
 
 
 
-items_api.route('/item', methods=["GET", "PUT", "DELETE"])
+@items_api.route('/items/item', methods=["GET", "PUT", "DELETE"])
 
 def item():
 
@@ -67,47 +69,39 @@ def item():
             return {"err": "Invalid item id", "status": "failed"}, 400
 
         try:
-            data = list(db.items.find_one({"itemID": itemID}))
+            data = db.items.find_one({"itemID": itemID}, {"_id" : 0})
         except Exception as e:
             return {"err": str(e), "status": "failed"}, 400
 
-        if len(data) == 0:
-            raise Exception("Item not found")
+        if data == None:
+            return {"err": "Item not found", "status": "failed"}, 400
 
         response = {"status": "success", "data": data}
         return make_response(response)
     
     elif request.method == "PUT":
         data = request.get_json()
-        itemID = data.get('itemID')
+        itemID = request.args.get('itemID')
         olditem = db.items.find_one({"itemID": itemID})
         
-        try:
-            data = list(db.items.find({"itemID": int(id)}, {"_id": 0}))
-        except Exception as e:
-            return {"err": str(e), "status": "failed"}, 400
-
-        
-        if len(data) == 0:
-            raise Exception("Item not found")
-
-
         userID = str(data.get('userID')) if data.get('userID') else olditem.get('userID')
         userName = str(data.get('userName')) if data.get('userName') else olditem.get('userName')
         description = str(data.get('description')) if data.get('description') else olditem.get('description')
-        itemName = int(data.get('itemName')) if data.get('itemName') else olditem.get('itemName')
+        itemName = str(data.get('itemName')) if data.get('itemName') else olditem.get('itemName')
         remarks = data.get('remarks') if data.get('remarks') else olditem.get('remarks')
+        photo = data.get('photo') if data.get('photo') else olditem.get('photo')
 
         body = {
             "itemID": itemID,
             "itemName": itemName,
-            "user": userName,
+            "userName": userName,
             "userID" : userID,
             "description" : description,
-            "remarks" : remarks
+            "remarks" : remarks,
+            "photo" : photo
         }
 
-        result = db.Posts.update_one({"itemID": itemID }, {'$set': body})
+        result = db.items.update_one({"itemID": itemID }, {'$set': body})
         if int(result.matched_count) > 0:
             return make_response({'message': "Item updated"}, 200)
         else:
@@ -119,7 +113,7 @@ def item():
         except:
             return {"err": "Invalid itemID", "status": "failed"}, 400
 
-        db.Posts.delete_one({"_id": itemID})
+        db.items.delete_one({"itemID": itemID})
         response = {"status": "success"}
         return make_response(response, 200)
         
@@ -138,12 +132,13 @@ def item():
 
 
 # {
-#     "itemID" : 1,
-#     "itemName": "Vaccum",
-#     "user": "Jane",
+#     "itemID" : 2,
+#     "itemName": "Mop",
+#     "userName": "Jane",
 #     "userID" : 1,
-#     "description" : "Vaccum Cleaner",
-#     "remarks" : "Nil"
+#     "description" : "Mop",
+#     "remarks" : "Nil",
+#     "photo" : "uri"
 # }
 
 
