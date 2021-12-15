@@ -38,7 +38,8 @@ def all_items():
         description = str(data.get("description"))
         remarks = str(data.get("remarks"))
         userName = str(data.get('userName'))
-        userID = str(data.get("userID"))
+        userID = db.Session.find_one({})["userID"]
+        #userID = str(data.get("userID"))
         photo = str(data.get("photo"))
         status = data.get('status')
         tags = data.get('tags')
@@ -98,7 +99,7 @@ def item():
         itemID = int(request.args.get('itemID'))
         olditem = db.items.find_one({"itemID": itemID})
         
-        userID = str(data.get('userID')) if data.get('userID') else olditem.get('userID')
+        userID = olditem.get('userID')
         userName = str(data.get('userName')) if data.get('userName') else olditem.get('userName')
         description = str(data.get('description')) if data.get('description') else olditem.get('description')
         itemName = str(data.get('itemName')).capitalize() if data.get('itemName') else olditem.get('itemName')
@@ -106,6 +107,11 @@ def item():
         photo = data.get('photo') if data.get('photo') else olditem.get('photo')
         status = data.get('status') if data.get('status') else olditem.get('status')
         tags = data.get('tags') if data.get('tags') else olditem.get('tags')
+
+        current_userID = db.Session.find_one({})["userID"]
+
+        if current_userID != userID:
+            return make_response({'message': "Not Loaner of Item", "status" : "failed"}, 200)
 
         body = {
             "itemID": itemID,
@@ -129,7 +135,14 @@ def item():
         try:
             itemID = int(request.args.get('itemID'))
         except:
-            return {"err": "Invalid itemID", "status": "failed"}, 400
+            return make_response({"err": "Invalid itemID", "status": "failed"}, 400)
+
+        olditem = db.items.find_one({"itemID": itemID})
+        userID = olditem.get('userID')
+        current_userID = db.Session.find_one({})["userID"]
+        if current_userID != userID:
+            return make_response({'message': "Not Loaner of Item", "status" : "failed"}, 200)
+        
 
         db.items.delete_one({"itemID": itemID})
         response = {"status": "success"}
@@ -155,7 +168,6 @@ def get_category():
     ]
 
     data = list(db.items.aggregate(filter_by_tags_pipeline))
-
 
     if data == [] or data == None:
         return {"err": "No items with category", "status": "success"}, 400

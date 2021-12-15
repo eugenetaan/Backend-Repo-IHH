@@ -68,7 +68,8 @@ def login():
 
     db.Session.update({'userID': userID, 'passwordHash': passwordHash}, {'$set': {
                       'userID': userID, 'passwordHash': passwordHash, 'createdAt': datetime.datetime.now()}}, upsert=True)
-
+                      
+    print(list(db.Session.find({})))
     token = jwt.encode({'userID': userID,
                         'passwordHash': passwordHash  # to change timedelta to 15 minutes in production
                         }, current_app.config['SECRET_KEY'], algorithm="HS256")
@@ -86,8 +87,6 @@ def logout():
     except:
         return jsonify({'message': 'An error occurred'}), 500
     return jsonify({'message': 'You have been successfully logged out'}), 200
-
-
 
 
 
