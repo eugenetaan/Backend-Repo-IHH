@@ -51,6 +51,11 @@ def edit_profile():
 
     if not userID:
         return {"err": "No such user", "status": "failed"}, 400
+
+    current_userID = db.Session.find_one({})["userID"]
+
+    if current_userID != userID:
+        return make_response({'message': "Invalid user", "status" : "failed"}, 200)
     
     userName = str(data.get('userName')) if data.get('userName') else oldUser.get('userName')
     room = str(data.get('room')) if data.get('room') else oldUser.get('room')
