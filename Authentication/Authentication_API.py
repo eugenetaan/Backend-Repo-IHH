@@ -29,7 +29,7 @@ def register():
             userID = formData["userID"]
             passwordHash = formData["passwordHash"]
             email = formData["email"]
-            displayName = formData["displayName"]
+            userName = formData["useryName"]
             room = formData["room"]
             telegramHandle = formData["telegramHandle"]
             userPhoto = formData.get("userPhoto") if formData.get("userPhoto") else "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=identicon"
@@ -46,7 +46,7 @@ def register():
                         "email": email,
                         })
     db.Profiles.insert_one({"userID": userID,
-                            "displayName": displayName,
+                            "userName": userName,
                             "room": room,
                             "telegramHandle": telegramHandle,
                             # default photo is below

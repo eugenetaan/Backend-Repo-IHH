@@ -40,3 +40,38 @@ def get_profiles():
         
         return make_response(response)
     
+
+@profiles_api.route("/edit", methods=["PUT"])
+@cross_origin()
+def edit_profile():
+
+    data = request.get_json()
+    userID = request.args.get("userID")
+    oldUser = db.Profiles.find_one({"userID": userID})
+
+    if not userID:
+        return {"err": "No such user", "status": "failed"}, 400
+    
+    userName = str(data.get('userName')) if data.get('userName') else oldUser.get('userName')
+    room = str(data.get('room')) if data.get('room') else oldUser.get('room')
+    telegramHandle = str(data.get('telegramHandle')) if data.get('telegramHandle') else oldUser.get('telegramHandle')
+    profilePictureURI = str(data.get("profilePictureURI")) if data.get("profilePictureURI") else oldUser.get("profilePictureURI")
+
+    body = {
+        "userID": userID,
+        "userName": userName,
+        "room": room,
+        "telegramHandle": telegramHandle,
+        "profilePictureURI": profilePictureURI
+    }
+
+    result = db.Profiles.update_one({"userID": userID }, {'$set': body})
+    if int(result.matched_count) > 0:
+        return make_response({'message': "Profile updated"}, 200)
+    else:
+        return make_response({'err': "Profile not updated"}, 204)
+
+
+
+
+    
