@@ -72,7 +72,9 @@ def login():
     token = jwt.encode({'userID': userID,
                         'passwordHash': passwordHash  # to change timedelta to 15 minutes in production
                         }, current_app.config['SECRET_KEY'], algorithm="HS256")
-    return jsonify({'token': token}), 200
+
+    return jsonify({'token': token, "status" : "success"})
+
 
 
 @auth_api.route('/logout', methods=['GET'])
