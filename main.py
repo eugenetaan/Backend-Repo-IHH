@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from db import *
 from secret_keys import *
 import jwt
@@ -9,6 +9,8 @@ from Items.items_API import items_api
 from Profiles.Profiles_APi import profiles_api
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = auth_secret_key
 app.register_blueprint(profiles_api, url_prefix="/profiles")
 app.register_blueprint(auth_api, url_prefix="/auth")
@@ -18,6 +20,7 @@ app.register_blueprint(users_api, url_prefix="/users")
 
 # Endpoints
 @app.route("/", methods=["GET"])
+@cross_origin()
 def hello():
 	return "Welcome!"
 

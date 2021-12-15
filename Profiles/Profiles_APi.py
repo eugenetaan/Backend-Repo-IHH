@@ -1,8 +1,7 @@
 from db import *
-from flask import Flask, render_template, flash, redirect, url_for, request, jsonify, make_response
-from flask import Blueprint
+from flask import Flask, render_template, flash, redirect, url_for, request, jsonify, make_response, Blueprint
+from flask_cors import cross_origin
 import sys
-
 
 sys.path.append("../")
 
@@ -13,7 +12,7 @@ profiles_api = Blueprint("profiles", __name__)
 #     return "Hello here are the users"
 
 @profiles_api.route("", methods=["GET"])
-
+@cross_origin()
 def get_profiles():
         try:
             userID = request.args.get("userID")

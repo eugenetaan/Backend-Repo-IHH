@@ -1,5 +1,6 @@
 from db import *
 from flask import Flask, jsonify, request, make_response
+from flask_cors import cross_origin
 import sys
 import jwt
 import datetime
@@ -13,11 +14,13 @@ sys.path.append("../")
 auth_api = Blueprint("auth", __name__)
 
 @auth_api.route("/")
+@cross_origin()
 def hello():
     return "Hello World"
 
 
 @auth_api.route("/register", methods=["POST"])
+@cross_origin()
 
 def register():
     formData = request.get_json()
@@ -54,7 +57,7 @@ def register():
 
 
 @auth_api.route('/login', methods=['POST'])
-
+@cross_origin()
 def login():
     credentials = request.get_json()
     userID = credentials['userID']
@@ -73,6 +76,7 @@ def login():
 
 
 @auth_api.route('/logout', methods=['GET'])
+@cross_origin()
 def logout():
     userID = request.args.get('userID')
     try:

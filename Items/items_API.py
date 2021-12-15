@@ -1,4 +1,5 @@
 from db import *
+from flask_cors import cross_origin
 from flask import Flask, render_template, flash, redirect, url_for, request, jsonify, make_response
 from flask import Blueprint
 import sys
@@ -12,7 +13,7 @@ items_api = Blueprint("items", __name__)
 #     return "Here you can find all the items that other people are sharing!"
 
 @items_api.route('', methods=["GET", "POST"])
-
+@cross_origin()
 def all_items():
 
     if request.method == "GET":
@@ -66,7 +67,7 @@ def all_items():
 
 
 @items_api.route('/item', methods=["GET", "PUT", "DELETE"])
-
+@cross_origin()
 def item():
 
     if request.method == "GET":
@@ -139,7 +140,7 @@ def item():
 
 
 @items_api.route('/item/category', methods=["GET"])
-
+@cross_origin()
 def get_category():
     try:
         tag_to_search = request.args.get("tag")
