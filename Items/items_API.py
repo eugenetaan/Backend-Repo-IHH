@@ -127,7 +127,7 @@ def item():
 
     elif request.method == "DELETE" :
         try:
-            itemID = request.args.get('itemID')
+            itemID = int(request.args.get('itemID'))
         except:
             return {"err": "Invalid itemID", "status": "failed"}, 400
 
