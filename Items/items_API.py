@@ -33,7 +33,7 @@ def all_items():
             return {"err": str(e), "status": "failed"}, 400
 
         itemID = str(data.get('itemID'))
-        itemName = str(data.get('itemName'))
+        itemName = str(data.get('itemName')).capitalize()
         description = str(data.get("description"))
         remarks = str(data.get("remarks"))
         userName = str(data.get('userName'))
@@ -69,16 +69,23 @@ def item():
 
         try:
             itemID = request.args.get("itemID")
+            matched_itemNames = (request.args.get("itemName")).capitalize()
         except Exception as e:
             return {"err": "Invalid item id", "status": "failed"}, 400
 
         try:
-            data = db.items.find_one({"itemID": itemID}, {"_id" : 0})
+            print(itemID, matched_itemNames)
+            if itemID:
+                print(1)
+                data = db.items.find_one({"itemID": int(itemID)}, {"_id" : 0})
+                print(data)
+            elif matched_itemNames:
+                data = list(db.items.find({"itemName": matched_itemNames}, {"_id" : 0}))
         except Exception as e:
-            return {"err": str(e), "status": "failed"}, 400
+            return {"err": str(e), "status": "failed"}, 40
 
-        if data == None:
-            return {"err": "Item not found", "status": "failed"}, 400
+        if data == None or data == [] or data == {}:
+            return {"err": "No items found", "status": "failed"}, 400
 
         response = {"status": "success", "data": data}
         return make_response(response)
@@ -91,9 +98,11 @@ def item():
         userID = str(data.get('userID')) if data.get('userID') else olditem.get('userID')
         userName = str(data.get('userName')) if data.get('userName') else olditem.get('userName')
         description = str(data.get('description')) if data.get('description') else olditem.get('description')
-        itemName = str(data.get('itemName')) if data.get('itemName') else olditem.get('itemName')
+        itemName = str(data.get('itemName')).capitalize() if data.get('itemName') else olditem.get('itemName')
         remarks = data.get('remarks') if data.get('remarks') else olditem.get('remarks')
         photo = data.get('photo') if data.get('photo') else olditem.get('photo')
+        status = data.get('status') if data.get('status') else olditem.get('status')
+        tags = data.get('tags') if data.get('tags') else olditem.get('tags')
 
         body = {
             "itemID": itemID,
@@ -102,7 +111,9 @@ def item():
             "userID" : userID,
             "description" : description,
             "remarks" : remarks,
-            "photo" : photo
+            "photo" : photo,
+            "status" : status,
+            "tags" : tags
         }
 
         result = db.items.update_one({"itemID": itemID }, {'$set': body})
@@ -125,12 +136,29 @@ def item():
 
 
 
+@items_api.route('/item/category', methods=["GET"])
+
+def get_category():
+    try:
+        tag_to_search = request.args.get("tag")
+    except Exception as e:
+        return {"err": "Invalid item id", "status": "failed"}, 400
+    
+
+    filter_by_tags_pipeline = [
+        { "$addFields" : {"has_category" : { "$in" : [tag_to_search, "$tags"]}}},
+        { "$match" : { "has_category" : True}},
+        { "$project" : { "_id" : 0 , "has_category" : 0}}
+    ]
+
+    data = list(db.items.aggregate(filter_by_tags_pipeline))
 
 
+    if data == [] or data == None:
+        return {"err": "No items with category", "status": "success"}, 400
 
-
-
-
+    response = {"status": "success", "data": data}
+    return make_response(response)
 
 
 
@@ -142,12 +170,13 @@ def item():
 #     "userID" : 1,
 #     "description" : "Mop",
 #     "remarks" : "Nil",
-#     "photo" : "uri"
+#     "photo" : "uri",
+#     "status" : 0,
+#     "tags" : ["appliances"]
 # }
 
 
-
-
+# status : 0,1,2
         
 
             
