@@ -32,13 +32,15 @@ def all_items():
             print(e)
             return {"err": str(e), "status": "failed"}, 400
 
-        itemID = str(data.get('itemID'))
+        itemID = int(data.get('itemID'))
         itemName = str(data.get('itemName')).capitalize()
         description = str(data.get("description"))
         remarks = str(data.get("remarks"))
         userName = str(data.get('userName'))
         userID = str(data.get("userID"))
         photo = str(data.get("photo"))
+        status = data.get('status')
+        tags = data.get('tags')
 
         body = {
             "itemID": itemID,
@@ -47,7 +49,9 @@ def all_items():
             "userID" : userID,
             "description" : description,
             "remarks" : remarks,
-            "photo" : photo
+            "photo" : photo,
+            "status" : status,
+            "tags" : tags
         }
 
         #check if item_ID already exist in DB
@@ -68,15 +72,13 @@ def item():
     if request.method == "GET":
 
         try:
-            itemID = request.args.get("itemID")
+            itemID = int(request.args.get("itemID"))
             matched_itemNames = (request.args.get("itemName")).capitalize()
         except Exception as e:
             return {"err": "Invalid item id", "status": "failed"}, 400
 
         try:
-            print(itemID, matched_itemNames)
             if itemID:
-                print(1)
                 data = db.items.find_one({"itemID": int(itemID)}, {"_id" : 0})
                 print(data)
             elif matched_itemNames:
@@ -92,7 +94,7 @@ def item():
     
     elif request.method == "PUT":
         data = request.get_json()
-        itemID = request.args.get('itemID')
+        itemID = int(request.args.get('itemID'))
         olditem = db.items.find_one({"itemID": itemID})
         
         userID = str(data.get('userID')) if data.get('userID') else olditem.get('userID')
