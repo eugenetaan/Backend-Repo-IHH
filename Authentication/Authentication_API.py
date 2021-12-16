@@ -82,11 +82,18 @@ def login():
 @auth_api.route('/logout', methods=['GET'])
 @cross_origin()
 def logout():
-    userID = request.args.get('userID')
+    
+    sessionData = db.Session.find_one({})
+    if sessionData:
+        current_userID = sessionData["userID"]
+    else:
+        return {"err": "No User Logged In", "status": "failed"}
+
     try:
         db.Session.remove({"userID": userID})
     except:
         return jsonify({'message': 'An error occurred'}), 500
+
     return jsonify({'message': 'You have been successfully logged out'}), 200
 
 
