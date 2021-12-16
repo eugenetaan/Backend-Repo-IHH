@@ -59,6 +59,7 @@ def register():
 @auth_api.route('/login', methods=['POST'])
 @cross_origin()
 def login():
+
     credentials = request.get_json()
     userID = credentials['userID']
     passwordHash = credentials['passwordHash']

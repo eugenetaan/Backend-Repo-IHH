@@ -40,13 +40,28 @@ def get_users():
             if data == None:
                 return {"err": "No such User", "status": "failed"}, 400
 
-            response = {"status": "success", "data": data}
+            
         
         return make_response(response)
     
 
 
+@users_api.route("/current", methods=["GET"])
+@cross_origin()
+
+def get_current_user():
     
+    sessionData = db.Session.find_one({})
+    if sessionData:
+        current_userID = sessionData["userID"]
+    else:
+        return {"err": "No User Logged In", "status": "failed"}
+    
+    response = {"status": "success", "userID": current_userID}
+    return make_response(response, 200)
+
+
+
 
 
 
