@@ -42,6 +42,10 @@ Support Get request, if userID arg is included will return user data/ profile da
 Edit user profile info (see representation for what info needed)
 For PUT request (ie editing of  user profile) will check whether current user in session is the same as user profile however current implementation means only one user can be logged in at a time else won’t work properly
 
+/users/current (GET)
+
+Return userID of user in session
+
 User representation in DB
 
 {
